@@ -10,25 +10,65 @@
     <resource-bundle>messages.I18n</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!--<defaultLiveTemplates file="/liveTemplates/fix-bug-log.xml"/>-->
+        <additionalTextAttributes scheme="Default" file="colorschemes/FixBugDefault.xml" />
+        <additionalTextAttributes scheme="Darcula" file="colorschemes/FixBugDarcula.xml" />
+
+        <!-- region Exception -->
         <localInspection language="JAVA"
                          shortName="UnusedException"
                          bundle="messages.I18n"
-                         key="inspection.unused.exception.display.name"
+                         key="inspection.UnusedException.display.name"
                          groupPath="FixBug"
                          groupBundle="messages.I18n"
                          groupKey="inspection.exception.group.key"
                          enabledByDefault="true"
-                         level="WARNING"
+                         level="ERROR"
                          implementationClass="io.github.linwancen.plugin.fix.exception.UnusedExceptionInspection"/>
         <localInspection language="JAVA"
                          shortName="PrintStackTrace"
                          bundle="messages.I18n"
-                         key="inspection.printStackTrace.display.name"
+                         key="inspection.PrintStackTrace.display.name"
                          groupPath="FixBug"
                          groupBundle="messages.I18n"
                          groupKey="inspection.exception.group.key"
                          enabledByDefault="true"
                          level="WARNING"
                          implementationClass="io.github.linwancen.plugin.fix.exception.PrintStackTraceInspection"/>
+        <!-- endregion Exception -->
+        <!-- region Nullable -->
+        <localInspection language="JAVA"
+                         shortName="MethodReturnNull"
+                         bundle="messages.I18n"
+                         key="inspection.MethodReturnNull.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.nullable.group.key"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="io.github.linwancen.plugin.fix.nullable.MethodReturnNullInspection"/>
+        <!-- endregion Nullable -->
+        <!-- region Spring -->
+        <localInspection language="JAVA"
+                         shortName="AnnoStatic"
+                         bundle="messages.I18n"
+                         key="inspection.AnnoStatic.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.spring.group.key"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="io.github.linwancen.plugin.fix.spring.AnnoStaticInspection"/>
+        <localInspection language="JAVA"
+                         shortName="NotAnno"
+                         bundle="messages.I18n"
+                         key="inspection.NotAnno.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.spring.group.key"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="io.github.linwancen.plugin.fix.spring.NotAnnoInspection"/>
+        <!-- endregion Spring -->
     </extensions>
 </idea-plugin>

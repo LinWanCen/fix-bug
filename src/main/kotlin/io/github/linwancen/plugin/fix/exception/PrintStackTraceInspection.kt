@@ -27,7 +27,7 @@ class PrintStackTraceInspection : AbstractBaseJavaLocalInspectionTool() {
                     if (text == "printStackTrace") {
                         holder.registerProblem(
                             method,
-                            I18n.message("inspection.printStackTrace.problem.descriptor"),
+                            I18n.message("inspection.PrintStackTrace.problem.descriptor"),
                             PrintStackTraceLogFix.INSTANCE,
                             PrintStackTraceRemoveFix.INSTANCE,
                             suppress

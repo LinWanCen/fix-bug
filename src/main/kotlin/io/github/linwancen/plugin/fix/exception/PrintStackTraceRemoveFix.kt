@@ -2,8 +2,9 @@ package io.github.linwancen.plugin.fix.exception
 
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
+import io.github.linwancen.plugin.fix.common.AbstractFix
 
-open class PrintStackTraceRemoveFix : UnusedExceptionLogFix() {
+open class PrintStackTraceRemoveFix : AbstractFix() {
     companion object {
         val INSTANCE = PrintStackTraceRemoveFix()
     }

@@ -3,14 +3,16 @@ package io.github.linwancen.plugin.fix.exception
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
-import com.intellij.psi.*
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiTreeUtil
-import com.siyeh.ig.InspectionGadgetsFix
-import org.slf4j.LoggerFactory
+import io.github.linwancen.plugin.fix.common.AbstractFix
+import io.github.linwancen.plugin.fix.common.ImportFixUtils
+import io.github.linwancen.plugin.fix.common.VarUtils
 
-open class UnusedExceptionLogFix : InspectionGadgetsFix() {
+open class UnusedExceptionLogFix : AbstractFix() {
     companion object {
-        private val LOG = LoggerFactory.getLogger(this::class.java)
         val INSTANCE = UnusedExceptionLogFix()
     }
 
@@ -18,15 +20,7 @@ open class UnusedExceptionLogFix : InspectionGadgetsFix() {
         return """=> LOG.error("", e);"""
     }
 
-    override fun doFix(project: Project?, descriptor: ProblemDescriptor?) {
-        try {
-            fix(project, descriptor)
-        } catch (e: Throwable) {
-            LOG.info("{}.fix() catch Throwable but log to record.", this::class.java.simpleName, e)
-        }
-    }
-
-    open fun fix(project: Project?, descriptor: ProblemDescriptor?) {
+    override fun fix(project: Project?, descriptor: ProblemDescriptor?) {
         val e = descriptor?.psiElement ?: return
         val (document, catchBlock, msg) = msgAndCatchBlock(e) ?: return
 
@@ -67,7 +61,7 @@ open class UnusedExceptionLogFix : InspectionGadgetsFix() {
     }
 
     open fun logValName(document: Document, catchBlock: PsiElement): String? {
-        return valByName(catchBlock, "log", "LOG", "LOGGER", "logger")?.name
+        return VarUtils.varByName(catchBlock, "log", "LOG", "LOGGER", "logger")?.name
     }
 
     open fun importLog(catchBlock: PsiElement, document: Document) {
@@ -79,16 +73,6 @@ open class UnusedExceptionLogFix : InspectionGadgetsFix() {
             insertIndex,
             "${space}private static final Logger LOG = LoggerFactory.getLogger(${psiClass.name}.class);\n"
         )
-        val importIndex = (psiClass.prevSibling?.textRange?.startOffset ?: return) + 1
-        document.insertString(importIndex, "import org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n")
-    }
-
-    open fun valByName(catchBlock: PsiElement, vararg names: String): PsiVariable? {
-        val helper = JavaPsiFacade.getInstance(catchBlock.project)?.resolveHelper ?: return null
-        for (name in names) {
-            val logVal = helper.resolveReferencedVariable(name, catchBlock)
-            if (logVal != null) return logVal
-        }
-        return null
+        ImportFixUtils.add(document, psiClass, "org.slf4j.Logger", "org.slf4j.LoggerFactory")
     }
 }

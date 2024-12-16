@@ -10,8 +10,7 @@ import com.intellij.psi.codeStyle.VariableKind
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.siyeh.ig.fixes.RenameFix
 import com.siyeh.ig.psiutils.VariableNameGenerator
-import io.github.linwancen.plugin.fix.SuppressFix
-import io.github.linwancen.plugin.fix.ui.I18n
+import io.github.linwancen.plugin.fix.common.ProblemUtils
 import org.slf4j.LoggerFactory
 
 class UnusedExceptionInspection : AbstractBaseJavaLocalInspectionTool() {
@@ -43,12 +42,7 @@ class UnusedExceptionInspection : AbstractBaseJavaLocalInspectionTool() {
                     val renameFix = RenameFix(newName, false, false)
                     list.add(renameFix)
                 }
-                SuppressFix.build(this@UnusedExceptionInspection, e)?.let {
-                    list.add(it)
-                }
-                holder.registerProblem(
-                    e, I18n.message("inspection.unused.exception.problem.descriptor"), *list.toTypedArray()
-                )
+                ProblemUtils.register(holder, e, this@UnusedExceptionInspection, *list.toTypedArray())
             }
         }
     }

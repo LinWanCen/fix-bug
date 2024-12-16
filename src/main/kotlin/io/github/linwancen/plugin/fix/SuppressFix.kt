@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import com.siyeh.ig.fixes.SuppressForTestsScopeFix
 
 object SuppressFix {
-    fun build(inspection: AbstractBaseJavaLocalInspectionTool?, context: PsiElement?): SuppressForTestsScopeFix? {
+    fun build(inspection: InspectionProfileEntry?, context: PsiElement?): SuppressForTestsScopeFix? {
         try {
             val method = SuppressForTestsScopeFix::class.java
                 .getMethod("build", InspectionProfileEntry::class.java, PsiElement::class.java)
