@@ -3,6 +3,7 @@ package io.github.linwancen.plugin.fix.nullable
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.*
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.stream
@@ -40,9 +41,7 @@ class MethodReturnNullInspection : AbstractBaseJavaLocalInspectionTool() {
                 } catch (_: Exception) {
                 }
 
-                val references = ReferencesSearch.search(section).findAll()
-                if (references.isEmpty()) return
-                val haveNull = references.stream().anyMatch {
+                val haveNull = ReferencesSearch.search(section, GlobalSearchScope.fileScope(holder.file)).anyMatch {
                     nullPattern.matcher(it.element.parent.parent.text).find()
                 }
                 if (haveNull) return

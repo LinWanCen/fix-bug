@@ -7,6 +7,7 @@ import com.intellij.psi.JavaElementVisitor
 import com.intellij.psi.PsiCatchSection
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.codeStyle.VariableKind
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.siyeh.ig.fixes.RenameFix
 import com.siyeh.ig.psiutils.VariableNameGenerator
@@ -29,8 +30,10 @@ class UnusedExceptionInspection : AbstractBaseJavaLocalInspectionTool() {
 
             private fun visit(section: PsiCatchSection?) {
                 val parameter = section?.parameter ?: return
-                val usage = ReferencesSearch.search(parameter).findAll()
-                if (!usage.isEmpty()) return
+                val ref = ReferencesSearch.search(parameter, GlobalSearchScope.fileScope(holder.file)).findFirst()
+                if (ref != null) {
+                    return
+                }
                 val e = parameter.identifyingElement ?: return
                 if (e.text.contains("ignore")) return
                 val list =

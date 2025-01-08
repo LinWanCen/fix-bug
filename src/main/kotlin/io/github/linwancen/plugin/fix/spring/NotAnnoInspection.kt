@@ -4,6 +4,7 @@ import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.codeInspection.util.SpecialAnnotationsUtil
 import com.intellij.psi.*
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.stream
@@ -42,9 +43,9 @@ class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
                     if (interfaces.first().qualifiedName?.startsWith("java.") == true) {
                         return
                     }
-                    ReferencesSearch.search(interfaces.first()).findAll()
+                    ReferencesSearch.search(interfaces.first(), GlobalSearchScope.projectScope(holder.project)).findAll()
                 } else {
-                    ReferencesSearch.search(section).findAll()
+                    ReferencesSearch.search(section, GlobalSearchScope.projectScope(holder.project)).findAll()
                 }
                 if (references.isEmpty()) return
                 val springRef = springRef(references) ?: return

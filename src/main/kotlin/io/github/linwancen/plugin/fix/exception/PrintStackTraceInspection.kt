@@ -5,6 +5,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.JavaElementVisitor
 import com.intellij.psi.PsiCatchSection
 import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import io.github.linwancen.plugin.fix.SuppressFix
 import io.github.linwancen.plugin.fix.ui.I18n
@@ -16,14 +17,12 @@ class PrintStackTraceInspection : AbstractBaseJavaLocalInspectionTool() {
             override fun visitCatchSection(section: PsiCatchSection?) {
                 super.visitCatchSection(section)
                 val parameter = section?.parameter ?: return
-                val usage = ReferencesSearch.search(parameter).findAll()
-                if (usage.isEmpty()) return
                 val e = parameter.identifyingElement ?: return
                 val suppress = SuppressFix.build(this@PrintStackTraceInspection, e)
-                for (reference in usage) {
-                    val parent = reference.element.parent ?: continue
-                    val method = parent.lastChild ?: continue
-                    val text = method.text ?: continue
+                ReferencesSearch.search(parameter, GlobalSearchScope.fileScope(holder.file)).forEach {
+                    val parent = it.element.parent ?: return@forEach
+                    val method = parent.lastChild ?: return@forEach
+                    val text = method.text ?: return@forEach
                     if (text == "printStackTrace") {
                         holder.registerProblem(
                             method,
