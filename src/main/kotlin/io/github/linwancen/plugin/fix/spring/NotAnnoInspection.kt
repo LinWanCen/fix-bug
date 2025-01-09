@@ -5,9 +5,9 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.codeInspection.util.SpecialAnnotationsUtil
 import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.containers.stream
 import com.intellij.util.ui.FormBuilder
 import io.github.linwancen.plugin.fix.SuppressFix
 import io.github.linwancen.plugin.fix.ui.I18n
@@ -20,6 +20,10 @@ class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
         "org.springframework.stereotype.Service",
         "org.springframework.stereotype.Controller",
         "org.springframework.web.bind.annotation.RestController",
+        "org.springframework.context.annotation.Bean",
+        "org.springframework.context.annotation.Configuration",
+        "org.springframework.boot.context.properties.ConfigurationProperties",
+        "org.apache.dubbo.config.annotation.DubboService",
     )
     private var memberAnno = mutableListOf(
         "javax.annotation.Resource",
@@ -35,17 +39,27 @@ class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
                 if (section.isInterface || section.isEnum || section.isRecord || section.isAnnotationType) {
                     return
                 }
-                if (section.annotations.stream().anyMatch { clazzAnno.contains(it.qualifiedName) }) {
+                if (section.hasModifierProperty(PsiModifier.ABSTRACT)) {
+                    return
+                }
+                if (section.annotations.any { clazzAnno.contains(it.qualifiedName) }) {
                     return
                 }
                 val interfaces = section.interfaces
+                val scope = GlobalSearchScope.projectScope(holder.project)
                 val references = if (interfaces.size == 1) {
-                    if (interfaces.first().qualifiedName?.startsWith("java.") == true) {
+                    val face = interfaces.first()
+                    if (face.qualifiedName?.startsWith("java.") == true) {
                         return
                     }
-                    ReferencesSearch.search(interfaces.first(), GlobalSearchScope.projectScope(holder.project)).findAll()
+                    val haveOther = ClassInheritorsSearch.search(face, scope, true)
+                        .anyMatch { clazz -> clazz.annotations.any { clazzAnno.contains(it.qualifiedName) } }
+                    if (haveOther) {
+                        return
+                    }
+                    ReferencesSearch.search(face, scope).findAll()
                 } else {
-                    ReferencesSearch.search(section, GlobalSearchScope.projectScope(holder.project)).findAll()
+                    ReferencesSearch.search(section, scope).findAll()
                 }
                 if (references.isEmpty()) return
                 val springRef = springRef(references) ?: return
@@ -63,14 +77,28 @@ class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
 
     fun springRef(references: Collection<PsiReference>): String? {
         references.forEach { ref ->
+            val psiMethod = PsiTreeUtil.getParentOfType(ref.element, PsiMethod::class.java)
+            val bean = psiMethod?.annotations?.any { "org.springframework.context.annotation.Bean" == it.qualifiedName }
+            if (bean == true) {
+                return null
+            }
+            // not search PsiClass for pref
+            val psiClass = PsiTreeUtil.getParentOfType(ref.element, PsiClass::class.java)
+            val conf = psiClass?.annotations?.any { "org.springframework.boot.context.properties.ConfigurationProperties" == it.qualifiedName }
+            if (conf == true) {
+                return null
+            }
+        }
+        references.forEach { ref ->
             val refElement = ref.element
-            PsiTreeUtil.getParentOfType(refElement, PsiField::class.java)?.let {
-                if (it.hasInitializer()) return@forEach
-                val name = "${it.containingClass?.qualifiedName ?: ""}.${it.name}"
-                if (spring(it)) return@springRef name
-                if (it.modifierList?.hasModifierProperty(PsiModifier.FINAL) == true) {
+            PsiTreeUtil.getParentOfType(refElement, PsiField::class.java)?.let { psiField ->
+                if (psiField.hasInitializer()) return@forEach
+                val name = "${psiField.containingClass?.qualifiedName ?: ""}.${psiField.name}"
+                if (spring(psiField)) return@springRef name
+                if (psiField.modifierList?.hasModifierProperty(PsiModifier.FINAL) == true) {
                     PsiTreeUtil.getParentOfType(refElement, PsiClass::class.java)?.let { clazz ->
-                        if (clazz.annotations.any { clazzAnno.contains(it.qualifiedName) }) return@springRef name
+                        if (clazz.annotations.any { clazzAnno.contains(it.qualifiedName) }
+                            && clazz.annotations.any { "lombok.RequiredArgsConstructor" == it.qualifiedName }) return@springRef name
                     }
                 }
                 return@forEach
