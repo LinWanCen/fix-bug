@@ -69,6 +69,16 @@
                          enabledByDefault="true"
                          level="ERROR"
                          implementationClass="io.github.linwancen.plugin.fix.spring.NotAnnoInspection"/>
+        <localInspection language="JAVA"
+                         shortName="Primary"
+                         bundle="messages.I18n"
+                         key="inspection.Primary.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.spring.group.key"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="io.github.linwancen.plugin.fix.spring.PrimaryInspection"/>
         <!-- endregion Spring -->
     </extensions>
 </idea-plugin>

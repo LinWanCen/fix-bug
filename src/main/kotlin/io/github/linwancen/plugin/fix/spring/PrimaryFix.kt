@@ -5,16 +5,16 @@ import com.intellij.psi.PsiElement
 import io.github.linwancen.plugin.fix.common.AbstractFix
 import io.github.linwancen.plugin.fix.common.AnnoUtils
 
-open class NotAnnoFix : AbstractFix() {
+open class PrimaryFix : AbstractFix() {
     companion object {
-        val INSTANCE = NotAnnoFix()
+        val INSTANCE = PrimaryFix()
     }
 
     override fun getFamilyName(): String {
-        return """=> add @Service"""
+        return """=> add @Primary"""
     }
 
     override fun documentFix(element: PsiElement, document: Document) {
-        AnnoUtils.add(element, document, "org.springframework.stereotype.Service", "Service")
+        AnnoUtils.add(element, document, "org.springframework.context.annotation.Primary", "Primary")
     }
 }

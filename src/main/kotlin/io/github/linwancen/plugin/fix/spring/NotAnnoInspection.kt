@@ -13,7 +13,7 @@ import io.github.linwancen.plugin.fix.SuppressFix
 import io.github.linwancen.plugin.fix.ui.I18n
 import javax.swing.JComponent
 
-class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
+open class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
     var clazzAnno = mutableListOf(
         "org.springframework.stereotype.Component",
         "org.springframework.stereotype.Repository",
@@ -30,7 +30,7 @@ class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
         "org.springframework.beans.factory.annotation.Autowired",
     )
 
-    private fun spring(owner: PsiModifierListOwner) = owner.annotations.any { memberAnno.contains(it.qualifiedName) }
+    open fun spring(owner: PsiModifierListOwner) = owner.annotations.any { memberAnno.contains(it.qualifiedName) }
 
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
         return object : JavaElementVisitor() {
@@ -67,7 +67,7 @@ class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
                 val suppress = SuppressFix.build(this@NotAnnoInspection, v)
                 holder.registerProblem(
                     v,
-                    I18n.message("inspection.NotAnno.problem.descriptor") + springRef,
+                    I18n.message("inspection.NotAnno.problem.descriptor", springRef),
                     NotAnnoFix.INSTANCE,
                     suppress
                 )
