@@ -41,7 +41,9 @@ class MethodReturnNullInspection : AbstractBaseJavaLocalInspectionTool() {
                 } catch (_: Exception) {
                 }
 
-                val haveNull = ReferencesSearch.search(section, GlobalSearchScope.fileScope(holder.file)).anyMatch {
+                val references = ReferencesSearch.search(section, GlobalSearchScope.fileScope(holder.file)).findAll()
+                if (references.isEmpty()) return
+                val haveNull = references.stream().anyMatch {
                     nullPattern.matcher(it.element.parent.parent.text).find()
                 }
                 if (haveNull) return
