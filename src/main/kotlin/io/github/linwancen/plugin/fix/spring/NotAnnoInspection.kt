@@ -30,21 +30,26 @@ open class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
         "org.springframework.beans.factory.annotation.Autowired",
     )
 
-    open fun spring(owner: PsiModifierListOwner) = owner.annotations.any { memberAnno.contains(it.qualifiedName) }
+    open fun springMember(owner: PsiModifierListOwner) = owner.annotations.any { memberAnno.contains(it.qualifiedName) }
+
+    open fun springClass(section: PsiClass): Boolean {
+        if (section.isInterface || section.isEnum || section.isRecord || section.isAnnotationType) {
+            return false
+        }
+        if (section.hasModifierProperty(PsiModifier.ABSTRACT)) {
+            return false
+        }
+        if (section.annotations.any { clazzAnno.contains(it.qualifiedName) }) {
+            return true
+        }
+        return false
+    }
 
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
         return object : JavaElementVisitor() {
             override fun visitClass(section: PsiClass?) {
                 super.visitClass(section ?: return)
-                if (section.isInterface || section.isEnum || section.isRecord || section.isAnnotationType) {
-                    return
-                }
-                if (section.hasModifierProperty(PsiModifier.ABSTRACT)) {
-                    return
-                }
-                if (section.annotations.any { clazzAnno.contains(it.qualifiedName) }) {
-                    return
-                }
+                if (!springClass(section)) return
                 val interfaces = section.interfaces
                 val scope = GlobalSearchScope.projectScope(holder.project)
                 val references = if (interfaces.size == 1) {
@@ -94,7 +99,7 @@ open class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
             PsiTreeUtil.getParentOfType(refElement, PsiField::class.java)?.let { psiField ->
                 if (psiField.hasInitializer()) return@forEach
                 val name = "${psiField.containingClass?.qualifiedName ?: ""}.${psiField.name}"
-                if (spring(psiField)) return@springRef name
+                if (springMember(psiField)) return@springRef name
                 if (psiField.modifierList?.hasModifierProperty(PsiModifier.FINAL) == true) {
                     PsiTreeUtil.getParentOfType(refElement, PsiClass::class.java)?.let { clazz ->
                         if (clazz.annotations.any { clazzAnno.contains(it.qualifiedName) }
@@ -106,14 +111,14 @@ open class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
             PsiTreeUtil.getParentOfType(refElement, PsiParameter::class.java)?.let { psiParameter ->
                 PsiTreeUtil.getParentOfType(refElement, PsiMethod::class.java)?.let { psiMethod ->
                     val name = "${psiMethod.containingClass?.qualifiedName ?: ""}.${psiMethod.name}(${psiParameter.name}"
-                    if (spring(psiParameter)) return@springRef name
+                    if (springMember(psiParameter)) return@springRef name
                     if (psiMethod.isConstructor) {
                         PsiTreeUtil.getParentOfType(refElement, PsiClass::class.java)?.let { clazz ->
                             if (clazz.annotations.any { clazzAnno.contains(it.qualifiedName) }) return@springRef name
                         }
                         return@forEach
                     }
-                    if (spring(psiMethod)) return@springRef name
+                    if (springMember(psiMethod)) return@springRef name
                 }
             }
         }

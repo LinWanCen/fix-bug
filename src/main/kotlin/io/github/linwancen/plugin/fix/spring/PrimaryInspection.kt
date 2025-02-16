@@ -23,12 +23,6 @@ class PrimaryInspection : NotAnnoInspection() {
         return object : JavaElementVisitor() {
             override fun visitClass(section: PsiClass?) {
                 super.visitClass(section ?: return)
-                if (section.hasAnnotation("org.springframework.context.annotation.Primary")) return
-                if (section.hasAnnotation("org.springframework.boot.autoconfigure.condition.ConditionalOnProperty")) return
-                if (!section.annotations.any { clazzAnno.contains(it.qualifiedName) }) {
-                    return
-                }
-
                 val interfaces = section.interfaces
                 if (interfaces.size != 1) {
                     return
@@ -37,8 +31,14 @@ class PrimaryInspection : NotAnnoInspection() {
                 if (face.qualifiedName?.startsWith("java.") == true) {
                     return
                 }
-                val scope = GlobalSearchScope.projectScope(holder.project)
 
+                if (section.hasAnnotation("org.springframework.context.annotation.Primary")) return
+                if (section.hasAnnotation("org.springframework.boot.autoconfigure.condition.ConditionalOnProperty")) return
+                if (!section.annotations.any { clazzAnno.contains(it.qualifiedName) }) {
+                    return
+                }
+
+                val scope = GlobalSearchScope.projectScope(holder.project)
                 val other = ClassInheritorsSearch.search(face, scope, true)
                     .filter { clazz -> clazz != section && clazz.annotations.any { clazzAnno.contains(it.qualifiedName) } }
                 if (other.isEmpty()) {

@@ -89,6 +89,16 @@
                          enabledByDefault="true"
                          level="ERROR"
                          implementationClass="io.github.linwancen.plugin.fix.spring.PrimaryInspection"/>
+        <localInspection language="JAVA"
+                         shortName="UseImpl"
+                         bundle="messages.I18n"
+                         key="inspection.UseImpl.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.spring.group.key"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="io.github.linwancen.plugin.fix.spring.UseImplInspection"/>
         <!-- endregion Spring -->
     </extensions>
 </idea-plugin>
