@@ -50,6 +50,16 @@
         <!-- endregion Nullable -->
         <!-- region Spring -->
         <localInspection language="JAVA"
+                         shortName="AnnoPrivate"
+                         bundle="messages.I18n"
+                         key="inspection.AnnoPrivate.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.spring.group.key"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="io.github.linwancen.plugin.fix.spring.AnnoPrivateInspection"/>
+        <localInspection language="JAVA"
                          shortName="AnnoStatic"
                          bundle="messages.I18n"
                          key="inspection.AnnoStatic.display.name"

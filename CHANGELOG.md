@@ -4,6 +4,7 @@
 
 ## [1.0.0]
 
+- 1.06 Spring Anno cannot use at `private` member
 - 1.05 Maybe need @Primary
 - 1.04 Maybe need @Service
 - 1.03 Spring Anno cannot use at `static` member
@@ -13,6 +14,7 @@
 
 # 中文更新日志
 
+- 1.06 Spring 注解不能使用在 private 成员上
 - 1.05 可能需要 @Primary
 - 1.04 可能需要 @Service
 - 1.03 Spring 注解不能使用在 static 成员上
