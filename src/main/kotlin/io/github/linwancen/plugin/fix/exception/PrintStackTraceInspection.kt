@@ -24,6 +24,8 @@ class PrintStackTraceInspection : AbstractBaseJavaLocalInspectionTool() {
                     val method = parent.lastChild ?: return@forEach
                     val text = method.text ?: return@forEach
                     if (text == "printStackTrace") {
+                        // e.printStackTrace(new PrintWriter(new StringWriter(), true))
+                        parent.parent?.let { p -> if (!p.text.contains("()")) return@forEach }
                         holder.registerProblem(
                             method,
                             I18n.message("inspection.PrintStackTrace.problem.descriptor"),
