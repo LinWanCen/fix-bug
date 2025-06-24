@@ -1,5 +1,6 @@
 package io.github.linwancen.plugin.fix.nullable
 
+import com.intellij.codeInsight.NullableNotNullManager
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.*
@@ -15,10 +16,13 @@ import java.util.regex.Pattern
 import javax.swing.JComponent
 
 class MethodReturnNullInspection : AbstractBaseJavaLocalInspectionTool() {
-    var callRegexp = "[.]((select.*|find.*)|get[(]|get.*[(][^)])"
+    //language="regexp"
+    var callRegexp = "[.](select.*|find.*)"
     private var callPattern = Pattern.compile(callRegexp)
+    //language="regexp"
     var typeRegexp = "<|\\[|Optional|^(int|long|short|double|float|boolean|char|byte)$"
     var typePattern = Pattern.compile(typeRegexp)
+    //language="regexp"
     var nullRegexp = "[Nn]ull|Blank|Empty"
     var nullPattern = Pattern.compile(nullRegexp)
 
@@ -35,8 +39,14 @@ class MethodReturnNullInspection : AbstractBaseJavaLocalInspectionTool() {
 
                 try {
                     val method = call.resolveMethod()
-                    if (method?.annotations.stream().anyMatch { it.qualifiedName?.contains("NotNull") == true }) {
-                        return
+                    if (method != null) {
+                        if (method.annotations.stream().anyMatch { it.qualifiedName?.contains("NotNull") == true }) {
+                            return
+                        }
+                        val nullManager = NullableNotNullManager.getInstance(section.project)
+                        if (nullManager.isNotNull(method, true)) {
+                            return
+                        }
                     }
                 } catch (_: Exception) {
                 }
