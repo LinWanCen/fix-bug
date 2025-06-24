@@ -32,14 +32,11 @@ open class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
 
     open fun springMember(owner: PsiModifierListOwner) = owner.annotations.any { memberAnno.contains(it.qualifiedName) }
 
-    open fun springClass(section: PsiClass): Boolean {
+    open fun canNotSpringClass(section: PsiClass): Boolean {
         if (section.isInterface || section.isEnum || section.isRecord || section.isAnnotationType) {
-            return false
+            return true
         }
         if (section.hasModifierProperty(PsiModifier.ABSTRACT)) {
-            return false
-        }
-        if (section.annotations.any { clazzAnno.contains(it.qualifiedName) }) {
             return true
         }
         return false
@@ -49,7 +46,10 @@ open class NotAnnoInspection : AbstractBaseJavaLocalInspectionTool() {
         return object : JavaElementVisitor() {
             override fun visitClass(section: PsiClass?) {
                 super.visitClass(section ?: return)
-                if (!springClass(section)) return
+                if (canNotSpringClass(section)) return
+                if (section.annotations.any { clazzAnno.contains(it.qualifiedName) }) {
+                    return
+                }
                 val interfaces = section.interfaces
                 val scope = GlobalSearchScope.projectScope(holder.project)
                 val references = if (interfaces.size == 1) {

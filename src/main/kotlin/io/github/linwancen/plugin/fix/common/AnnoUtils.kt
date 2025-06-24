@@ -12,8 +12,7 @@ object AnnoUtils {
         val docComment = psiClass.docComment
         if (docComment != null) {
             val insertIndex = docComment.textRange.endOffset
-            document.insertString(insertIndex, "\n@$classSimpleName" +
-                    "")
+            document.insertString(insertIndex, "\n@$classSimpleName")
         } else {
             val insertIndex = psiClass.textRange.startOffset
             document.insertString(insertIndex, "@$classSimpleName\n")

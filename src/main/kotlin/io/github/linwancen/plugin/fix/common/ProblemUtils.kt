@@ -18,8 +18,18 @@ object ProblemUtils {
         inspection: InspectionProfileEntry,
         vararg fixes: LocalQuickFix?,
     ) {
+        register(holder, v, emptyArray(), inspection, *fixes)
+    }
+
+    @JvmStatic
+    fun register(
+        holder: ProblemsHolder,
+        v: PsiElement, tipParams: Array<String>,
+        inspection: InspectionProfileEntry,
+        vararg fixes: LocalQuickFix?,
+    ) {
         val name = inspection.shortName
-        val tip = I18n.message("inspection.$name.problem.descriptor")
+        val tip = I18n.message("inspection.$name.problem.descriptor", tipParams)
         val suppress = SuppressFix.build(inspection, v)
         val fixesNew = arrayOf(*fixes, suppress)
         val highlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING

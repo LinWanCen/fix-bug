@@ -11,10 +11,19 @@ class UseImplInspection : NotAnnoInspection() {
         return object : JavaElementVisitor() {
             override fun visitClass(section: PsiClass?) {
                 super.visitClass(section ?: return)
-                if (!springClass(section)) return
+                if (canNotSpringClass(section)) return
+                if (!section.annotations.any { clazzAnno.contains(it.qualifiedName) }) {
+                    return
+                }
                 section.allFields.forEach { if (springMember(it)) checkType(it.typeElement, holder, section) }
                 section.constructors.forEach { psiMethod ->
-                    psiMethod.parameterList.parameters.forEach { param -> checkType(param.typeElement, holder, section) }
+                    psiMethod.parameterList.parameters.forEach { param ->
+                        checkType(
+                            param.typeElement,
+                            holder,
+                            section
+                        )
+                    }
                 }
                 val lombok = section.annotations.any { "lombok.RequiredArgsConstructor" == it.qualifiedName }
                 if (lombok) {
@@ -36,8 +45,24 @@ class UseImplInspection : NotAnnoInspection() {
         } catch (_: Throwable) {
             return
         }
+        if (psiClass.isInterface) return
         val interfaces = psiClass.interfaces
         if (interfaces.isEmpty()) return
-        ProblemUtils.register(holder, typeElement, this@UseImplInspection, UseImplFix.INSTANCE)
+        val arr1 = section.qualifiedName?.split(".") ?: return
+        if (arr1.size < 2) return
+        val sameCompany = interfaces.any {
+            val arr2 = it.qualifiedName?.split(".")
+            if (arr2 == null || arr2.size < 2) return@any false
+            return@any arr2[1] == arr1[1]
+        }
+        if (sameCompany) {
+            ProblemUtils.register(
+                holder,
+                typeElement,
+                arrayOf(interfaces.joinToString { "," }),
+                this@UseImplInspection,
+                UseImplFix.INSTANCE
+            )
+        }
     }
 }

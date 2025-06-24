@@ -1,8 +1,10 @@
 package io.github.linwancen.plugin.fix.spring
 
 import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -12,10 +14,15 @@ import io.github.linwancen.plugin.fix.ui.I18n
 
 class PrimaryInspection : NotAnnoInspection() {
 
-    fun qualifier(owner: PsiModifierListOwner?): Boolean {
-        owner ?: return false
-        if (owner.getAnnotation("org.springframework.beans.factory.annotation.Qualifier") != null) return true
-        val resource = owner.getAnnotation("javax.annotation.Resource") ?: return false
+    fun qualifier(e: PsiVariable?, face: PsiClass): Boolean {
+        e ?: return false
+        if (e.type is PsiClassReferenceType) {
+            if ((e.type as PsiClassReferenceType).name != face.name) {
+                return true
+            }
+        }
+        if (e.getAnnotation("org.springframework.beans.factory.annotation.Qualifier") != null) return true
+        val resource = e.getAnnotation("javax.annotation.Resource") ?: return false
         return resource.attributes.any { it.attributeName == "type" || it.attributeName == "name" || it.attributeName == "mapperName" }
     }
 
@@ -60,21 +67,24 @@ class PrimaryInspection : NotAnnoInspection() {
                 val springRef = springRef(references) ?: return
                 references.forEach { ref ->
                     val psiField = PsiTreeUtil.getParentOfType(ref.element, PsiField::class.java)
-                    if (qualifier(psiField)) return@visitClass
+                    if (qualifier(psiField, face)) return@visitClass
                     val text = psiField?.text
                     if (text != null && (text.contains("<") || text.contains("["))) {
                         return@visitClass
                     }
                     val psiParameter = PsiTreeUtil.getParentOfType(ref.element, PsiParameter::class.java)
-                    if (qualifier(psiParameter)) return@visitClass
+                    if (qualifier(psiParameter, face)) return@visitClass
                 }
 
                 val v = section.identifyingElement ?: return
-                val otherNames = other.map { it.qualifiedName }.joinToString("\n")
+                val otherNames = other.joinToString("\n") {
+                    "${it.qualifiedName}-${ModuleUtil.findModuleForPsiElement(it)}"
+                }
                 val suppress = SuppressFix.build(this@PrimaryInspection, v)
                 holder.registerProblem(
                     v,
-                    I18n.message("inspection.Primary.problem.descriptor", face.qualifiedName ?: "", springRef, otherNames),
+                    I18n.message("inspection.Primary.problem.descriptor",
+                        face.qualifiedName ?: "", springRef, otherNames),
                     PrimaryFix.INSTANCE,
                     suppress
                 )
