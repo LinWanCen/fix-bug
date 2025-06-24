@@ -6,6 +6,7 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
+    <depends>org.jetbrains.idea.maven</depends>
 
     <resource-bundle>messages.I18n</resource-bundle>
 
@@ -36,6 +37,28 @@
                          level="WARNING"
                          implementationClass="io.github.linwancen.plugin.fix.exception.PrintStackTraceInspection"/>
         <!-- endregion Exception -->
+        <!-- region Maven -->
+        <localInspection language="XML"
+                         shortName="MavenParent"
+                         bundle="messages.I18n"
+                         key="inspection.MavenParent.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.maven.group.key"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="io.github.linwancen.plugin.fix.maven.MavenParentInspection"/>
+        <localInspection language="XML"
+                         shortName="MavenVersionDiff"
+                         bundle="messages.I18n"
+                         key="inspection.MavenVersionDiff.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.maven.group.key"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="io.github.linwancen.plugin.fix.maven.MavenVersionDiffInspection"/>
+        <!-- endregion Maven -->
         <!-- region Nullable -->
         <localInspection language="JAVA"
                          shortName="MethodReturnNull"
