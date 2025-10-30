@@ -4,6 +4,7 @@
 
 ## [1.0.0]
 
+- 1.10 Maybe need @RequestBody
 - 1.09 Maven parent not in parent dir. should add relativePath tag
 - 1.08 Maven component version different
 - 1.07 Spring injection uses interfaces when there are available
@@ -17,6 +18,7 @@
 
 # 中文更新日志
 
+- 1.10 可能需要 @RequestBody
 - 1.09 Maven parent 不在父目录，应添加 relativePath 标签
 - 1.08 Maven 组件版本不一致
 - 1.07 Spring 注入有接口时使用接口
