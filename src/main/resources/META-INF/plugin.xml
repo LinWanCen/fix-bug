@@ -37,6 +37,18 @@
                          level="WARNING"
                          implementationClass="io.github.linwancen.plugin.fix.exception.PrintStackTraceInspection"/>
         <!-- endregion Exception -->
+        <!-- region logic -->
+        <localInspection language="JAVA"
+                         shortName="SetGet"
+                         bundle="messages.I18n"
+                         key="inspection.SetGet.display.name"
+                         groupPath="FixBug"
+                         groupBundle="messages.I18n"
+                         groupKey="inspection.logic.group.key"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="io.github.linwancen.plugin.fix.logic.SetGetInspection"/>
+        <!-- endregion logic -->
         <!-- region Maven -->
         <localInspection language="XML"
                          shortName="MavenParent"

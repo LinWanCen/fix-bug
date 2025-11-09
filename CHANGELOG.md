@@ -4,6 +4,7 @@
 
 ## [1.0.0]
 
+- 1.11 SetGet not match or self
 - 1.10 Maybe need @RequestBody
 - 1.09 Maven parent not in parent dir. should add relativePath tag
 - 1.08 Maven component version different
@@ -18,6 +19,7 @@
 
 # 中文更新日志
 
+- 1.11 SetGet 不匹配或自身赋值
 - 1.10 可能需要 @RequestBody
 - 1.09 Maven parent 不在父目录，应添加 relativePath 标签
 - 1.08 Maven 组件版本不一致

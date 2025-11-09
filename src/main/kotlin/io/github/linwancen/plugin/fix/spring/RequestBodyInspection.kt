@@ -15,10 +15,11 @@ import javax.swing.JComponent
 
 class RequestBodyInspection : AbstractBaseJavaLocalInspectionTool() {
     // language="regexp"
-    var typeRegexp = "]$|^(String|List|Set" +
+    var typeRegexp = "(?:^|<)(?:String|Date|Serializable|MultipartFile" +
             "|Integer|Long|Float|Double|Boolean|Byte|Short|Char" +
-            "|int|long|float|double|boolean|byte|short|char" +
-            "|Servlet|HttpServlet|MultipartFile|BindingResult|Principal)"
+            "|int|long|float|double|boolean|byte|short|char)(?:>|\\[])?$" +
+            "|^(?:Http)?Servlet(?:Request|Response)$" +
+            "|^(?:BindingResult|Principal|Model)$"
     var typePattern = Pattern.compile(typeRegexp)
 
     var methodAnno = mutableListOf(

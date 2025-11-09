@@ -59,7 +59,7 @@ class UseImplInspection : NotAnnoInspection() {
             ProblemUtils.register(
                 holder,
                 typeElement,
-                arrayOf(interfaces.joinToString { "," }),
+                arrayOf(interfaces.joinToString { it.qualifiedName ?: it.name ?: "" }),
                 this@UseImplInspection,
                 UseImplFix.INSTANCE
             )

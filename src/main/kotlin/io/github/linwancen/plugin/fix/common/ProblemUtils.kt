@@ -29,7 +29,7 @@ object ProblemUtils {
         vararg fixes: LocalQuickFix?,
     ) {
         val name = inspection.shortName
-        val tip = I18n.message("inspection.$name.problem.descriptor", tipParams)
+        val tip = I18n.message("inspection.$name.problem.descriptor", *tipParams)
         val suppress = SuppressFix.build(inspection, v)
         val fixesNew = arrayOf(*fixes, suppress)
         val highlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING
